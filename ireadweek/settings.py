@@ -15,9 +15,9 @@ logger.addHandler(logging.StreamHandler())
 logger.addHandler(logging.FileHandler('C:/Users/hqs/Desktop/script/python/spider/bak/test.log', mode='w', encoding='utf-8'))
 logger.setLevel(logging.CRITICAL)  # 输出所有大于INFO级别的log
 
-# ITEM_PIPELINES = {
-#    'ireadweek.pipelines.booksPipeline': 300,
-# }
+ITEM_PIPELINES = {
+   'ireadweek.pipelines.booksPipeline': 300,
+}
 
 PROXY_URL = 'http://localhost:5555/random'
 
