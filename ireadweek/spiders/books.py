@@ -19,6 +19,7 @@ class BooksSpider(scrapy.Spider):
         html = response.text
         doc = pq(html)
         book_list = doc('.hanghang-list').children('a').items()
+        TEST_FLAG = True # 开启测试，减少时间爬取最少数据
         for book in book_list:
             book_item = bookList()
             book_item['book_name'] = book.find('.hanghang-list-name').text()
@@ -30,23 +31,26 @@ class BooksSpider(scrapy.Spider):
             yield book_item
             
             # 爬取书籍详情页
-            sleep_time = random.randint(1,2)
+            sleep_time = random.uniform(0.1,0.9)
             logger.info('爬取书籍详情页，睡眠'+str(sleep_time)+'秒')
             time.sleep(sleep_time)
             book_detail_url = response.urljoin(book.attr('href'))
             yield scrapy.Request(url=book_detail_url, callback=self.parse_book_detail, meta={'cate_id':cate_id})
+            if TEST_FLAG:
+                break # 只爬取一个分类下的一本书和对应的详情页
 
-        # 后续request，下一页
-        sleep_time = random.randint(1,2)
-        logger.info('爬取下一页，睡眠'+str(sleep_time)+'秒')
-        time.sleep(sleep_time)
-        # next_page = doc.find('.hanghang-page').find('li:last').prev().children('a').attr('href')
-        next_page = doc.find('.hanghang-page').find('.current').parent('li').next('li a').attr('href')
-        if next_page:
-            next_page = response.urljoin(next_page)
-            logger.info('next_page')
-            logger.info(next_page)
-            yield scrapy.Request(url=next_page, callback=self.parse, meta={})
+        if not TEST_FLAG:
+            # 后续request，下一页
+            sleep_time = random.uniform(0.1,0.9)
+            logger.info('爬取下一页，睡眠'+str(sleep_time)+'秒')
+            time.sleep(sleep_time)
+            # next_page = doc.find('.hanghang-page').find('li:last').prev().children('a').attr('href')
+            next_page = doc.find('.hanghang-page').find('.current').parent('li').next('li a').attr('href')
+            if next_page:
+                next_page = response.urljoin(next_page)
+                logger.info('next_page')
+                logger.info(next_page)
+                yield scrapy.Request(url=next_page, callback=self.parse, meta={})
         
         # 爬取下一个分类
         cate_name = ''
@@ -54,7 +58,7 @@ class BooksSpider(scrapy.Spider):
             cate_name = response.meta['cate_name']
         if not cate_name:
             cate_name = ''
-        sleep_time = random.randint(1,2)
+        sleep_time = random.uniform(0.1,0.9)
         logger.info('爬取下一个分类，分类名称：'+ cate_name +'，睡眠'+str(sleep_time)+'秒')
         time.sleep(sleep_time)
         cate_list = doc('.hanghang-shupu-content a:gt(0)').items()
