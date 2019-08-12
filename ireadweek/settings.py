@@ -17,6 +17,7 @@ logger.setLevel(logging.CRITICAL)  # 输出所有大于INFO级别的log
 
 ITEM_PIPELINES = {
    'ireadweek.pipelines.booksPipeline': 300,
+   'ireadweek.pipelines.mysqlPipeline': 301,
 }
 
 PROXY_URL = 'http://localhost:5555/random'

@@ -2,7 +2,7 @@
 import scrapy
 from pyquery import PyQuery as pq
 from ireadweek.settings import logger
-from ireadweek.items import bookList, bookDetail
+from ireadweek.items import bookCateList, bookList, bookDetail
 import re,time,random
 
 class BooksSpider(scrapy.Spider):
@@ -11,9 +11,6 @@ class BooksSpider(scrapy.Spider):
     # start_urls = ['http://www.ireadweek.com/index.php?g=portal&m=list&a=index&id=67&p=1'] # 分类: 逻辑学
     start_urls = ['http://www.ireadweek.com/index.php?m=list&a=index&id=2'] # 分类：凡人修仙
     def parse(self, response):
-        '''
-        # 循环分类列表，采集一个分类，返回当前分类id和当前对应的文章列表并写入数据库，同时返回后续文章request列表，文章request详情写入数据库。
-        '''
         request_url = response.url
         cate_id = re.search('.*?id=(.*?)$', request_url, re.S).group(1)
         html = response.text
@@ -28,6 +25,7 @@ class BooksSpider(scrapy.Spider):
             book_item['cate_id'] = cate_id
             book_item['page'] = doc.find('.hanghang-page').find('.current').text()
             book_item['book_detail_url'] = book.attr('href')
+            book_item['origin_book_id'] = re.search('.*?id=(.*?)$', book.attr('href'), re.S).group(1)
             yield book_item
             
             # 爬取书籍详情页
@@ -35,7 +33,7 @@ class BooksSpider(scrapy.Spider):
             logger.info('爬取书籍详情页，睡眠'+str(sleep_time)+'秒')
             time.sleep(sleep_time)
             book_detail_url = response.urljoin(book.attr('href'))
-            yield scrapy.Request(url=book_detail_url, callback=self.parse_book_detail, meta={'cate_id':cate_id})
+            yield scrapy.Request(url=book_detail_url, callback=self.parse_book_detail, meta={'origin_book_id':book_item['origin_book_id']})
             if TEST_FLAG:
                 break # 只爬取一个分类下的一本书和对应的详情页
 
@@ -52,22 +50,22 @@ class BooksSpider(scrapy.Spider):
                 logger.info(next_page)
                 yield scrapy.Request(url=next_page, callback=self.parse, meta={})
         
-        # 爬取下一个分类
-        cate_name = ''
-        if 'cate_name' in response.meta.keys():
-            cate_name = response.meta['cate_name']
-        if not cate_name:
-            cate_name = ''
+        # 返回当前分类信息
+        current_cate = doc('.hanghang-shupu-content').children("a[href='/index.php?m=list&a=index&id="+cate_id+"']")
+        bc_item = bookCateList()
+        bc_item['id'] = cate_id
+        bc_item['name'] = current_cate.text()
+        yield bc_item
+
+        next_cate = doc('.hanghang-shupu-content').children("a[href='/index.php?m=list&a=index&id="+cate_id+"']").next('a')
+        next_cate_url = next_cate.attr('href')
+        next_cate_url = response.urljoin(next_cate_url)
+        next_cate_name = next_cate.text()
         sleep_time = random.uniform(0.1,0.9)
-        logger.info('爬取下一个分类，分类名称：'+ cate_name +'，睡眠'+str(sleep_time)+'秒')
+        logger.info('爬取下一个分类，分类名称：'+ next_cate_name +'，睡眠'+str(sleep_time)+'秒')
         time.sleep(sleep_time)
-        cate_list = doc('.hanghang-shupu-content a:gt(0)').items()
-        for item in cate_list:
-            next_cate_url = item.attr('href')
-            next_cate_url = response.urljoin(next_cate_url)
-            cate_name = item.text()
-            yield scrapy.Request(url=next_cate_url, callback=self.parse, meta={'cate_name':cate_name})
-            
+        yield scrapy.Request(url=next_cate_url, callback=self.parse, meta={})
+
     def parse_book_detail(self, response):
         html = response.text
         doc = pq(html)
@@ -79,5 +77,6 @@ class BooksSpider(scrapy.Spider):
         item['grade'] = doc.find('.hanghang-shu-content-font').children('p').eq(3).text()
         item['desc'] = doc.find('.hanghang-shu-content-font').children('p').eq(4).nextAll('p').text()
         item['download_url'] = doc.find('.hanghang-shu-content-btns').parent('a').attr('href')
+        item['origin_book_id'] = response.meta['origin_book_id']
         yield item
             
