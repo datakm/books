@@ -45,7 +45,7 @@ class mysqlPipeline(object):
             row = session.query(articleCate).filter_by(id=item['id']).first()
             if not getattr(row, 'id', None):
                 add_time = time.strftime('%Y-%m-%d %H:%M:%S')
-                obj = articleCate(id=item['id'], pid=0, name=item['name'], add_time=add_time, status=1)
+                obj = articleCate(id=item['id'], title=item['name'], add_time=add_time)
                 session.add(obj)
                 session.commit()
         # 文章列表
@@ -53,7 +53,7 @@ class mysqlPipeline(object):
             add_time = time.strftime('%Y-%m-%d %H:%M:%S')
             row = session.query(article).filter_by(origin_book_id=item['origin_book_id']).first()
             if not getattr(row, 'origin_book_id', None):
-                obj = article(title=item['book_name'], cate_id=item['cate_id'], author=item['author'], grade=item['grade'], book_detail_url=item['book_detail_url'], origin_book_id=item['origin_book_id'], add_time=add_time, status=1)
+                obj = article(title=item['book_name'], fid=item['cate_id'], author=item['author'], grade=item['grade'], book_detail_url=item['book_detail_url'], origin_book_id=item['origin_book_id'], add_time=add_time)
                 session.add(obj)
                 session.commit()
         # 文章详情
@@ -61,7 +61,7 @@ class mysqlPipeline(object):
             origin_book_id = item['origin_book_id']
             book = session.query(article).filter(article.origin_book_id == origin_book_id).first()
             book.origin_image_path = item['book_image']
-            path = re.search('/.*?(20190813.*?/)$', self.image_store).group(1)
+            path = re.search('/.*?(News.*?/)$', self.image_store).group(1)
             book.image = path + item['book_image'].split('/')[-1]
             book.desc = item['desc']
             book.content = item['desc']

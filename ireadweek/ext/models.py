@@ -5,39 +5,41 @@ from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, In
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy import create_engine
 
-engine = create_engine("mysql+pymysql://root:root@127.0.0.1:3306/ruohan", max_overflow=5)
+engine = create_engine("mysql+pymysql://root:root@127.0.0.1:3306/book", max_overflow=5)
 Base = declarative_base()
 
 # 文章分类表
 class articleCate(Base):
-    __tablename__ = 'tp_article_cate'
+    __tablename__ = 'news_category'
     id = Column(Integer, primary_key=True)
-    pid = Column(Integer)
-    name = Column(String(100))
+    fid = Column(Integer, default=0)
+    title = Column(String(100))
     add_time = Column(DateTime)
-    status = Column(Integer)
+    order =Column(Integer)
+    # status = Column(Integer)
+
 
 # 文章表
 class article(Base):
-    __tablename__ = 'tp_article'
+    __tablename__ = 'news'
     id = Column(Integer, primary_key=True)
+    fid = Column(Integer) # 分类id
     title = Column(String(100))
-    cate_id = Column(Integer)
-    image = Column(String(200))
-    origin_image_path = Column(String(200))
-    desc = Column(Text)
-    content = Column(Text)
-    hits = Column(Integer)
     author = Column(String(30))
+    origin_image_path = Column(String(200))
+    image = Column(String(200))
+    hits = Column(Integer)
     grade = Column(String(20))
     book_detail_url = Column(String(250))
     origin_book_id = Column(Integer)
     download_url = Column(String(250))
+    view =Column(Integer)
+    desc = Column(Text)
+    content = Column(Text)
+    order =Column(Integer)
+    recomm =Column(Integer)
     add_time = Column(DateTime)
     update_time = Column(DateTime)
-    is_recommend = Column(Integer)
-    is_index = Column(Integer)
-    status = Column(Integer)
 
 Base.metadata.create_all(engine)
 #创建mysql操作对象
