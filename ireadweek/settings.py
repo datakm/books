@@ -23,8 +23,8 @@ ITEM_PIPELINES = {
 
 PROXY_URL = 'http://localhost:5555/random'
 
-# DOWNLOADER_MIDDLEWARES = {
-#     'ireadweek.middlewares.ProxyMiddleware': 555,
-# }
+DOWNLOADER_MIDDLEWARES = {
+    # 'ireadweek.middlewares.ProxyMiddleware': 555,
+}
 
 IMAGES_STORE = 'D:/home/phpstudy2019install/PHPTutorial/WWW/book/Uploads/News/2019-08-13/'

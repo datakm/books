@@ -16,7 +16,7 @@ class BooksSpider(scrapy.Spider):
         html = response.text
         doc = pq(html)
         book_list = doc('.hanghang-list').children('a').items()
-        TEST_FLAG = True # 开启测试，减少时间爬取最少数据
+        TEST_FLAG = False # 开启测试，减少时间爬取最少数据
         for book in book_list:
             book_item = bookList()
             book_item['book_name'] = book.find('.hanghang-list-name').text()
