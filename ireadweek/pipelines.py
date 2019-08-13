@@ -61,9 +61,10 @@ class mysqlPipeline(object):
             origin_book_id = item['origin_book_id']
             book = session.query(article).filter(article.origin_book_id == origin_book_id).first()
             book.origin_image_path = item['book_image']
-            path = re.search('/public.*?/$', self.image_store)[0]
+            path = re.search('/.*?(20190813.*?/)$', self.image_store).group(1)
             book.image = path + item['book_image'].split('/')[-1]
             book.desc = item['desc']
+            book.content = item['desc']
             book.download_url = item['download_url']
             session.commit()
         return item
