@@ -24,6 +24,7 @@ class article(Base):
     title = Column(String(100))
     cate_id = Column(Integer)
     image = Column(String(200))
+    origin_image_path = Column(String(200))
     desc = Column(Text)
     content = Column(Text)
     hits = Column(Integer)
@@ -42,3 +43,7 @@ Base.metadata.create_all(engine)
 #创建mysql操作对象
 Session = sessionmaker(bind=engine)
 session = Session()
+
+
+# row = session.query(article).filter_by(origin_book_id=13491).first()
+# print(row.book_detail_url)

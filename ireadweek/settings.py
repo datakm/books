@@ -16,8 +16,9 @@ logger.addHandler(logging.FileHandler('C:/Users/hqs/Desktop/script/python/spider
 logger.setLevel(logging.CRITICAL)  # 输出所有大于INFO级别的log
 
 ITEM_PIPELINES = {
-   'ireadweek.pipelines.booksPipeline': 300,
+   # 'ireadweek.pipelines.booksPipeline': 300,
    'ireadweek.pipelines.mysqlPipeline': 301,
+   'ireadweek.pipelines.imagePipeline': 302,
 }
 
 PROXY_URL = 'http://localhost:5555/random'
@@ -25,3 +26,5 @@ PROXY_URL = 'http://localhost:5555/random'
 # DOWNLOADER_MIDDLEWARES = {
 #     'ireadweek.middlewares.ProxyMiddleware': 555,
 # }
+
+IMAGES_STORE = 'D:/home/phpstudy2019install/PHPTutorial/WWW/ruohan/public/uploads/20190813/'
